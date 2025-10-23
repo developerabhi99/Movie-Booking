@@ -2,7 +2,7 @@ require('dotenv').config();
 const express = require('express');
 const connectDB = require("./src/config/db");
 const userRoute = require("./src/routes/user");
-const theaterRoute = require("./src/routes/Client/theater");
+const clientRoute = require("./src/routes/Client/client");
 const { checkAuthenticatedUser, checkRoleAuthorizationForClient } = require('./src/middlewares/authentication');
 
 const app = express();
@@ -20,10 +20,10 @@ app.get('/',checkAuthenticatedUser,(req,res)=>{
 
 app.use("/user",userRoute);
 
-app.use("/theater",
+app.use("/client",
 checkAuthenticatedUser,
 checkRoleAuthorizationForClient('CLIENT'),    
-theaterRoute);
+clientRoute);
 
 
 const PORT = process.env.PORT;

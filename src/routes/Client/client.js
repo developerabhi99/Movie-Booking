@@ -1,5 +1,5 @@
 const { Router } = require('express');
-const { postTheaterHandler } = require('../../controllers/Client/theater');
+const { postTheaterHandler,postScreenLayoutTemplateHandler, postScreenHandler } = require('../../controllers/Client/client');
 
 const router = Router();
 
@@ -54,6 +54,10 @@ const router = Router();
  *       400:
  *         description: Invalid input
  */
-router.post('/add', postTheaterHandler);
+router.post('/theater/add', postTheaterHandler);
+router.post('/screenLayoutTemplate/add', postScreenLayoutTemplateHandler);
+router.post('/screen/add', postScreenHandler);
+router.post('/movie/add', postMovieHandler);
+
 
 module.exports = router;
