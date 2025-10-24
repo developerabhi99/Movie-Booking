@@ -66,6 +66,11 @@ const showSchema = new mongoose.Schema(
     showTime: { type: Date, required: true },
     ticketPrice: Number, // base price; seat type modifiers apply
     bookedSeats: [String],
+    owner:{
+      type: mongoose.Schema.Types.ObjectId,
+      ref:"User",
+      required:true
+    }
   },
   { timestamps: true }
 );

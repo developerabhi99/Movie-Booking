@@ -1,6 +1,7 @@
 const Movie = require("../../models/Client/Movie");
 const Screen = require("../../models/Client/Screen");
 const ScreenLayoutTemplate = require("../../models/Client/ScreenLayoutTemplate");
+const Show = require("../../models/Client/Show");
 const Theater = require("../../models/Client/Theater");
 
 const postTheaterService = async (body) => {
@@ -86,7 +87,7 @@ const postScreenService = async (body) => {
   return screen;
 };
 
-const postMovieHandler = async (body) => {
+const postMovieService = async (body) => {
   /**
      *   title: { type: String, required: true },
          description: { type: String },
@@ -138,14 +139,63 @@ const postMovieHandler = async (body) => {
     addedBy,
   };
 
-  const movie = await Movie(movieData);
+  //console.log(movieData);
+
+  const movie = await Movie.create(movieData); 
 
   return movie;
 };
+
+const postShowService= async (body)=>{
+  const {owner,movieId,theaterId,screenId,showTime,ticketPrice,bookedSeats}= body;
+  
+  const movie = await Movie.findById(movieId);
+  if(!movie) throw new Error("Movie not found !!");
+
+  const theater = await Theater.findById(theaterId);
+  if(!theater) throw new Error("Theater not found !!");
+
+  const screen = await Screen.findById(screenId);
+  if(!screen) throw new Error("Screen not found");
+
+  // checking if seats are prebooked
+
+  const booked = [];
+  if (Array.isArray(bookedSeats) && bookedSeats.length > 0) {
+    if (bookedSeats.length > 0) {
+      for (const seatNumber of bookedSeats) {
+        const seat = screen.seats.find(
+          (s) => `${s.row}${s.number}` === seatNumber
+        );
+        if (!seat) throw new Error(`Seat ${seatNumber} not found on this screen.`);
+        if (!seat.isAvailable) throw new Error(`Seat ${seatNumber} is already booked.`);
+        booked.push(`${seat.row}${seat.number}`);
+      }
+    }
+    }
+  
+
+  const showData={
+    owner:owner,
+    bookedSeats:booked,
+    ticketPrice:ticketPrice && ticketPrice>0 ?ticketPrice:0,
+    showTime:showTime,
+    screen:screenId,
+    theater:theaterId,
+    movie:movieId
+
+  }
+
+  const show = await Show.create(showData);
+
+  return show;
+  
+}
 
 module.exports = {
   postTheaterService,
   postScreenLayoutTemplateService,
   postScreenService,
-  postMovieHandler,
+  postMovieService,
+  postShowService
 };

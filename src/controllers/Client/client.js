@@ -1,4 +1,4 @@
-const { postTheaterService,postScreenLayoutTemplateService,postScreenService } = require("../../services/Client/client");
+const { postTheaterService,postScreenLayoutTemplateService,postScreenService,postMovieService,postShowService } = require("../../services/Client/client");
 
 
 const postTheaterHandler=async (req,res)=>{
@@ -68,16 +68,54 @@ const postScreenHandler=async (req,res)=>{
 const postMovieHandler=async (req,res)=>{
     try{
         const body=req.body;
-        const movie = await postMovieHandler({...data,addedBy:req.user._id});
+        const movie = await postMovieService({...body,addedBy:req.user._id});
+
+        res.status(201).json({
+            success: true,
+            message:"Movie registered successfully !!",
+            data: movie,
+            error:""
+        });
+
 
     }catch(e){
-
+        res.status(400).json({
+            success: false,
+            message:"Movie registeration unsuccessfull !!",
+            data: "",
+            error:e.message
+        });
     }
+}
+
+const postShowHandler = async (req,res)=>{
+    
+    try{
+        const body = req.body;
+        const show = await postShowService({...body,owner:req.user._id});
+
+        res.status(201).json({
+            success: true,
+            message:"Show registered successfully !!",
+            data: show,
+            error:""
+        });
+    }catch(e){
+        res.status(400).json({
+            success: false,
+            message:"Show registeration unsuccessfull !!",
+            data: "",
+            error:e.message
+        });
+    }
+
+    
 }
 
 module.exports={
     postTheaterHandler,
     postScreenLayoutTemplateHandler,
     postScreenHandler,
-    postMovieHandler
+    postMovieHandler,
+    postShowHandler
 }
