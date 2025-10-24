@@ -1,6 +1,7 @@
 require('dotenv').config();
 const express = require('express');
 const connectDB = require("./src/config/db");
+const connectRedis = require("./src/config/redis");
 const userRoute = require("./src/routes/user");
 const clientRoute = require("./src/routes/Client/client");
 const { checkAuthenticatedUser, checkRoleAuthorizationForClient } = require('./src/middlewares/authentication');
@@ -13,6 +14,7 @@ setupSwagger(app); // this will create /api-docs route
 app.use(express.urlencoded({extended:true})); 
 app.use(express.json());
 connectDB();
+connectRedis;
 
 app.get('/',checkAuthenticatedUser,(req,res)=>{
     res.send("Server is running");

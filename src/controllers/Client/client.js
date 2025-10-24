@@ -1,4 +1,13 @@
-const { postTheaterService,postScreenLayoutTemplateService,postScreenService,postMovieService,postShowService } = require("../../services/Client/client");
+const { postScreenLayoutTemplateService} = require("../../services/Client/client");
+const { postMovieService} = require("../../services/Client/movie");
+const { postShowService } = require("../../services/Client/show");
+const { postScreenService} = require("../../services/Client/screen");
+const { postTheaterService } = require("../../services/Client/theater");
+
+
+
+
+
 
 
 const postTheaterHandler=async (req,res)=>{

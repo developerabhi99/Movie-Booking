@@ -1,4 +1,4 @@
-const { verifyTokenForUser } = require("../../utils/authentication");
+const { verifyTokenForUser } = require("../utils/authentication");
 
 /**
  * This middleware checks whether every request is authenticated or not

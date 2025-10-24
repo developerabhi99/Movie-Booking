@@ -1,6 +1,6 @@
 const {Schema,model} = require('mongoose');
 const bcrypt = require('bcrypt');
-const { createTokenForUser } = require('../../utils/authentication');
+const { createTokenForUser } = require('../utils/authentication');
 /**
  * @swagger
  * components:
