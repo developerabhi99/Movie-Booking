@@ -2,15 +2,15 @@
 const twilio = require("twilio");
 
 const accountSid =
-  process.env.TWILIO_ACCOUNT_SID || "AC532e47155518ccdb147d203b552c50c7";
+  process.env.TWILIO_ACCOUNT_SID ;
 const authToken =
-  process.env.TWILIO_AUTH_TOKEN || "9fbbdef3b96f22d7a4943fa5975dd4fd";
+  process.env.TWILIO_AUTH_TOKEN ;
 const messagingServiceSid =
-  process.env.TWILIO_MESSAGING_SERVICE_SID || "MG13fea770ebc0ca5e1f31cddfe3861924";
+  process.env.TWILIO_MESSAGING_SERVICE_SID ;
 const whatsappFrom =
-  process.env.TWILIO_WHATSAPP_FROM || "whatsapp:+14155238886";
+  process.env.TWILIO_WHATSAPP_FROM ;
 const contentSid =
-  process.env.TWILIO_WHATSAPP_CONTENT_SID || "HX350d429d32e64a552466cafecbe95f3c";
+  process.env.TWILIO_WHATSAPP_CONTENT_SID ;
 
 const client = twilio(accountSid, authToken);
 
