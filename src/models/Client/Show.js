@@ -55,7 +55,7 @@ const showSchema = new mongoose.Schema(
     },
     theater: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Theater",
+      ref: "theaters",
       required: true,
     },
     screen: {
@@ -75,4 +75,6 @@ const showSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-module.exports = mongoose.model("Show", showSchema);
+const Show = mongoose.model("Show", showSchema)
+
+module.exports = Show;

@@ -5,10 +5,21 @@ const {
     updateMovieService,
     deleteMovieService,
   } = require("../../services/Client/movie");
+const { publishNotificationEvent } = require("../../services/Notifications/notificationPublisher");
   
   const postMovieHandler = async (req, res) => {
     try {
       const movie = await postMovieService({ ...req.body, addedBy: req.user._id });
+
+      await publishNotificationEvent("MOVIE_ADDED", {
+        userId: req.user._id,
+        title: "New Movie Added 🎬",
+        message: `Movie "${movie.title}" has been successfully added.`,
+        email: "yesabhi@gmail.com", // optional if available
+        phone: "+91 7003207968", // optional if available
+        meta: { movieId: movie._id },
+      });
+
       res.status(201).json({
         success: true,
         message: "Movie registered successfully !!",
