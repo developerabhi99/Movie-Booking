@@ -68,6 +68,6 @@ async function sendWhatsApp(phone, messageOrVars) {
     console.error("❌ WhatsApp message failed:", error.message);
     throw error;
   }
-}
+} 
 
 module.exports = { sendSMS, sendWhatsApp };
