@@ -37,37 +37,46 @@ async function sendSMS(phone, message) {
  * Send WhatsApp message using Twilio Content Template or fallback to simple text
  */
 async function sendWhatsApp(phone, messageOrVars) {
-  try {
-    const twilioClient = twilio(accountSid, authToken);
-
-    const payload = {
-      from: whatsappFrom,
-      to: `whatsapp:${phone}`,
-    };
-
-    if (typeof messageOrVars === "string") {
-      // Plain text message (no template)
-      payload.body = messageOrVars;
-    } else if (
-      typeof messageOrVars === "object" &&
-      Object.keys(messageOrVars).length > 0
-    ) {
-      // Template message with variables
-      payload.contentSid = contentSid;
-      payload.contentVariables = JSON.stringify(messageOrVars);
-    } else {
-      // Template with no variables
-      payload.contentSid = contentSid;
+    try {
+      const twilioClient = twilio(accountSid, authToken);
+  
+      const payload = {
+        from: whatsappFrom,
+        to: `whatsapp:${phone}`,
+      };
+  
+      if (typeof messageOrVars === "string") {
+        // Plain text message
+        payload.body = messageOrVars;
+  
+      } else if (typeof messageOrVars === "object" && Object.keys(messageOrVars).length > 0) {
+        // Convert variables into Twilio format: {"1":"value1","2":"value2"}
+        const formattedVars = {};
+        let i = 1;
+  
+        for (const value of Object.values(messageOrVars)) {
+          formattedVars[i.toString()] = String(value ?? "");
+          i++;
+        }
+  
+        payload.contentSid = contentSid;
+        payload.contentVariables = JSON.stringify(formattedVars);
+  
+      } else {
+        // No variables — use default template
+        payload.contentSid = contentSid;
+        payload.contentVariables = JSON.stringify({ "1": "", "2": "" });
+      }
+  
+      const response = await twilioClient.messages.create(payload);
+  
+      console.log(`💬 WhatsApp message sent to ${phone} → SID: ${response.sid}`);
+      return response;
+  
+    } catch (error) {
+      console.error("❌ WhatsApp message failed:", error.message);
+      throw error;
     }
-
-    const response = await twilioClient.messages.create(payload);
-
-    console.log(`💬 WhatsApp message sent to ${phone} → SID: ${response.sid}`);
-    return response;
-  } catch (error) {
-    console.error("❌ WhatsApp message failed:", error.message);
-    throw error;
   }
-} 
-
+  
 module.exports = { sendSMS, sendWhatsApp };

@@ -6,13 +6,13 @@ const NOTIFICATION_QUEUE = "notification.queue";
 
 async function startNotificationConsumer() {
   try {
-    console.log("👂 Waiting for notifications on:", NOTIFICATION_QUEUE);
+    console.log("Waiting for notifications on:", NOTIFICATION_QUEUE);
 
     await subscribe(NOTIFICATION_QUEUE, async (message) => {
       try {
         let content;
 
-        // 🧠 Safely parse message — handle Buffer, string, or object
+        // Safely parse message — handle Buffer, string, or object
         if (Buffer.isBuffer(message)) {
           content = JSON.parse(message.toString());
         } else if (typeof message === "string") {
@@ -23,17 +23,17 @@ async function startNotificationConsumer() {
           throw new Error("Unsupported message format");
         }
 
-        console.log(`📩 Notification event received: ${content.type}`);
+        console.log(` Notification event received: ${content.type}`);
 
         await handleNotification(content.type, content.payload);
       } catch (err) {
-        console.error("❌ Error processing notification message:", err.message);
+        console.error("Error processing notification message:", err.message);
       }
     });
 
-    console.log("✅ Notification consumer started successfully");
+    console.log("Notification consumer started successfully");
   } catch (err) {
-    console.error("❌ Notification consumer failed to start:", err.message);
+    console.error("Notification consumer failed to start:", err.message);
   }
 }
 
