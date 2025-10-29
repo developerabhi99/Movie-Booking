@@ -3,10 +3,11 @@ const { publish } = require("../../config/rabbitmq");
 
 const NOTIFICATION_QUEUE = "notification.queue";
 
-async function publishNotificationEvent(type, payload) {
-  try {
+async function publishNotificationEvent(type,messageType = [], payload) {
+  try { 
     const message = {
       type,
+      messageType,
       payload,
       timestamp: new Date().toISOString(),
     };

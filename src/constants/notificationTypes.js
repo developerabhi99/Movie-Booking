@@ -1,4 +1,3 @@
-// constants/notificationTypes.js
 module.exports = Object.freeze({
     USER_SIGNUP: "USER_SIGNUP",
     USER_DELETED: "USER_DELETED",

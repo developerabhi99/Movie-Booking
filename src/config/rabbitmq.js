@@ -54,7 +54,7 @@ async function subscribe(queue, handler) {
       } catch (err) {
         console.error("Message handling error:", err);
         channel.nack(msg);
-      }
+      } 
     }
   });
 }

@@ -1,4 +1,5 @@
 const transporter = require("../../config/email");
+const notificationMessageType = require("../../constants/notificationMessageType");
 const Notification = require("../../models/Notification/Notification");
 const { sendSMS,sendWhatsApp } = require("../../utils/sms");
 
@@ -9,7 +10,7 @@ const { sendSMS,sendWhatsApp } = require("../../utils/sms");
  * @param {string} type - Notification event type
  * @param {Object} payload - Notification data
  */
-async function handleNotification(type, payload = {}) {
+async function handleNotification(type,messageType=[], payload = {}) {
   const { userId, title, message, email, phone, meta = {} } = payload;
 
   if (!userId || !title || !message) {
@@ -18,7 +19,9 @@ async function handleNotification(type, payload = {}) {
   }
 
   try {
-    // 1️⃣ Save in-app notification
+
+    if(messageType.includes(notificationMessageType.InAppNotification)){
+         // 1️. Save in-app notification
     const savedNotification = await Notification.create({
       user: userId,
       type,
@@ -26,10 +29,12 @@ async function handleNotification(type, payload = {}) {
       message,
       meta,
     });
-
+    savedNotification()
     console.log(`Notification stored → User: ${userId}, Type: ${type}`);
-
-    // 2️⃣ Send Email (if email is provided)
+    }
+  
+    if(messageType.includes(notificationMessageType.MailNotification)){
+           // 2️. Send Email (if email is provided)
     if (email) {
       try {
         await transporter.sendMail({
@@ -43,17 +48,31 @@ async function handleNotification(type, payload = {}) {
         console.error("Email sending failed:", err.message);
       }
     }
-
-    // 3️⃣ Send SMS (if phone is provided)
+    }
+   
+    if(messageType.includes(notificationMessageType.PhoneNotification)){
+        // 3️. Send SMS (if phone is provided)
     if (phone) {
       try {
         await sendSMS(phone, message);
-        await sendWhatsApp(phone, message);
         console.log(`SMS sent → ${phone}`);
       } catch (err) {
         console.error("SMS sending failed:", err.message);
       }
     }
+    }
+
+    if(messageType.includes(notificationMessageType.WhatsAppNotification)){
+      try {
+        await sendWhatsApp(phone, message);
+        console.log(`WhatsApp sent → ${phone}`);
+      } catch (err) {
+        console.error("SMS sending failed:", err.message);
+      }
+    }
+    
+
+   
 
     return savedNotification;
   } catch (err) {

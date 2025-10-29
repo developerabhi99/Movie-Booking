@@ -25,7 +25,7 @@ async function startNotificationConsumer() {
 
         console.log(` Notification event received: ${content.type}`);
 
-        await handleNotification(content.type, content.payload);
+        await handleNotification(content.type, content.messageType, content.payload);
       } catch (err) {
         console.error("Error processing notification message:", err.message);
       }
