@@ -25,10 +25,10 @@ connectRedis;
       console.log("🚀 Initializing RabbitMQ...");
       await initRabbitMQ();
   
-      console.log("🎧 Starting Notification Consumer...");
-      await startNotificationConsumer();
+      // console.log("🎧 Starting Notification Consumer...");
+      // await startNotificationConsumer();
   
-      console.log("✅ RabbitMQ & Notification Consumer ready");
+      // console.log("✅ RabbitMQ & Notification Consumer ready");
     } catch (err) {
       console.error("❌ Failed to initialize RabbitMQ or start consumer:", err.message);
     }
