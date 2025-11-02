@@ -4,7 +4,7 @@ const connectDB = require("./src/config/db");
 const connectRedis = require("./src/config/redis");
 const userRoute = require("./src/routes/user");
 const clientRoute = require("./src/routes/Client/client");
-const paymentRoute = require("./src/routes/User/booking");
+const paymentRoute = require("./src/routes/User/booking"); 
 
 const { initRabbitMQ } = require("./src/config/rabbitmq");
 const { startNotificationConsumer } = require("./src/services/Notifications/notificationConsumer");
