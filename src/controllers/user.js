@@ -9,7 +9,9 @@ const signUpHandler= async (req,res)=>{
 
     try{
         const body = req.body;
+       // console.log(body);
         const newUser = await signupService(body);
+        //console.log(newUser);
 
         await publishGeneralMessage(
             notificationTypes.USER_SIGNUP,
@@ -20,25 +22,25 @@ const signUpHandler= async (req,res)=>{
               notificationMessageType.WhatsAppNotification
             ],
             {
-              userId: req.user._id,
+              userId: newUser._id,
               title: "Welcome to MBA",
               message: `Signup "${newUser}" has been successfull.`,
-              email: req.user._id, // optional if available
-              phone: req.user._id, // optional if available
+              email: newUser._id, // optional if available
+              phone: newUser._id, // optional if available
               meta: { newUserId: newUser._id },
             }
         )
    
         res.status(201).json({
             success: true,
-            message:"user registered successfully !!",
+            message:"user registered successfully hh !!",
             data: {...newUser.toObject(),password:undefined,salt:undefined},
             error:""
         })
     }catch(e){
         res.status(400).json({
             success:false,
-            message:"could not register user !!",
+            message:"could not register user ff!!",
             data: {},
             error:e.message
         })

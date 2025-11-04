@@ -46,7 +46,7 @@ services:
             dockerfile: Dockerfile
         container_name: movie-booking-app
         ports:
-            - "3001:3000"
+            - "3002:3000"
         environment:
             PORT: "3000"
             MONGO_URI: "mongodb://admin:password@mongodb:27017/mba?authSource=admin"

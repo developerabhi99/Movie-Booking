@@ -27,8 +27,21 @@ async function generalConsumer() {
       });
 
       await channel.bindQueue(queueName, NOTIFICATION_EXCHANGE, `General.retry.${i + 1}`);
-      console.log(`Configured ${queueName} with TTL ${ttl / 1000}s`);
+      //console.log(`Configured ${queueName} with TTL ${ttl / 1000}s`);
     }
+
+    // Ensure DLQ and main queue exist and are bound before consuming
+    await channel.assertQueue("General_DLQ", { durable: true });
+    await channel.bindQueue("General_DLQ", NOTIFICATION_EXCHANGE, "General.dlq");
+
+    await channel.assertQueue(QUEUE_NAME, {
+      durable: true,
+      arguments: {
+        "x-dead-letter-exchange": NOTIFICATION_EXCHANGE,
+        "x-dead-letter-routing-key": "General.retry",
+      },
+    });
+    await channel.bindQueue(QUEUE_NAME, NOTIFICATION_EXCHANGE, "General.main");
 
     // Consume messages from main queue
     await channel.consume(QUEUE_NAME, async (msg) => {

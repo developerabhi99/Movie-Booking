@@ -1,4 +1,5 @@
 const { initRabbitMQ, NOTIFICATION_EXCHANGE } = require("../../config/rabbitmq");
+const { handleNotification } = require("../../services/Notifications/notificationService");
 
 const QUEUE_NAME = "Order_Queue";
 const MAX_RETRIES = 6;
@@ -26,8 +27,20 @@ async function OrderConsumer() {
       });
 
       await channel.bindQueue(queueName, NOTIFICATION_EXCHANGE, `Order.retry.${i + 1}`);
-      console.log(`Configured ${queueName} with TTL ${ttl / 1000}s`);
+     // console.log(`Configured ${queueName} with TTL ${ttl / 1000}s`);
     }
+
+    await channel.assertQueue("Order_DLQ", { durable: true });
+    await channel.bindQueue("Order_DLQ", NOTIFICATION_EXCHANGE, "Order.dlq");
+
+    await channel.assertQueue(QUEUE_NAME, {
+      durable: true,
+      arguments: {
+        "x-dead-letter-exchange": NOTIFICATION_EXCHANGE,
+        "x-dead-letter-routing-key": "Order.retry",
+      },
+    });
+    await channel.bindQueue(QUEUE_NAME, NOTIFICATION_EXCHANGE, "Order.main");
 
     // Consume messages from main queue
     await channel.consume(QUEUE_NAME, async (msg) => {
@@ -41,7 +54,7 @@ async function OrderConsumer() {
         console.log("Received message:", data);
 
         // Simulate error for testing (remove in production)
-        throw new Error("Simulated failure");
+       await handleNotification(data.type,data.messageType,data.message);
 
         // If success
         console.log(" Processed successfully");
