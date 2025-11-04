@@ -1,3 +1,7 @@
+const notificationMessageType = require("../../constants/notificationMessageType");
+const notificationTypes = require("../../constants/notificationTypes");
+const { publishGeneralMessage } = require("../../Notification/Producer/generalProducer");
+
 const {
     postScreenService,
     getScreensService,
@@ -9,6 +13,22 @@ const {
   const postScreenHandler = async (req, res) => {
     try {
       const screen = await postScreenService(req.body);
+
+       await publishGeneralMessage(
+            notificationTypes.SCREEN_ADDED,
+            [
+              notificationMessageType.InAppNotification,
+              notificationMessageType.MailNotification,
+            ],
+            {
+              userId: req.user._id,
+              title: "New Screen Added",
+              message: `Screen "${screen.name}" has been successfully added.`,
+              email: req.user._id, // optional if available
+              phone: req.user._id, // optional if available
+              meta: { screenId: screen._id },
+            }
+          );
       res.status(201).json({
         success: true,
         message: "Screen registered successfully !!",
@@ -66,6 +86,21 @@ const {
   const updateScreenHandler = async (req, res) => {
     try {
       const updated = await updateScreenService(req.params.id, req.body);
+       await publishGeneralMessage(
+            notificationTypes.SCREEN_UPDATED,
+            [
+              notificationMessageType.InAppNotification,
+              notificationMessageType.MailNotification,
+            ],
+            {
+              userId: req.user._id,
+              title: `${updated.name} Screen Updated`,
+              message: `${updated.name} Screen has been successfully updated.`,
+              email: req.user._id, // optional if available
+              phone: req.user._id, // optional if available
+              meta: { screenId: updated._id },
+            }
+          );
       res.status(200).json({
         success: true,
         message: "Screen updated successfully !!",
@@ -85,6 +120,21 @@ const {
   const deleteScreenHandler = async (req, res) => {
     try {
       const deleted = await deleteScreenService(req.params.id);
+      await publishGeneralMessage(
+            notificationTypes.SCREEN_DELETED,
+            [
+              notificationMessageType.InAppNotification,
+              notificationMessageType.MailNotification,
+            ],
+            {
+              userId: req.user._id,
+              title: `${deleted.name} Screen Deleted`,
+              message: `${deleted.name} Screen has been successfully Deleted.`,
+              email: req.user._id, // optional if available
+              phone: req.user._id, // optional if available
+              meta: { screenId: deleted._id},
+            }
+          );
       res.status(200).json({
         success: true,
         message: "Screen deleted successfully !!",

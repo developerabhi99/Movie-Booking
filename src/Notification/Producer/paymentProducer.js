@@ -35,14 +35,19 @@ async function setupPaymentQueues(channel) {
   console.log("Payment Queues configured");
 }
 
-async function publishPaymentMessage(message) {
+async function publishPaymentMessage(type,messageType=[],message) {
   try {
     const { channel } = await initRabbitMQ();
     await setupPaymentQueues(channel);
 
-    const payload = Buffer.from(JSON.stringify(message));
+    const payload ={
+      type,
+      messageType,
+      message
+    }
+    const msg = Buffer.from(JSON.stringify(payload));
 
-    await channel.publish(NOTIFICATION_EXCHANGE, "Payment.main", payload, { persistent: true });
+    await channel.publish(NOTIFICATION_EXCHANGE, "Payment.main", msg, { persistent: true });
     console.log("Message published to Payment_Queue");
   } catch (err) {
     console.error("Failed to publish message:", err.message);

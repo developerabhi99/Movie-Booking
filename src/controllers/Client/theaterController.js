@@ -1,3 +1,6 @@
+const notificationTypes = require("../../constants/notificationTypes");
+const { publishGeneralMessage } = require("../../Notification/Producer/generalProducer");
+
 const {
     postTheaterService,
     getTheatersService,
@@ -10,7 +13,21 @@ const {
     try {
       const body = { ...req.body, owner: req.user._id };
       const theater = await postTheaterService(body);
-  
+      await publishGeneralMessage(
+        notificationTypes.THEATER_ADDED,
+        [
+          notificationMessageType.InAppNotification,
+          notificationMessageType.MailNotification,
+        ],
+        {
+          userId: req.user._id,
+          title: "New Theater Added",
+          message: `Theater "${theater.name}" has been successfully added.`,
+          email: req.user._id, // optional if available
+          phone: req.user._id, // optional if available
+          meta: { theaterId: theater._id },
+        }
+      );
       res.status(201).json({
         success: true,
         message: "Theater registered successfully !!",
@@ -68,6 +85,21 @@ const {
   const updateTheaterHandler = async (req, res) => {
     try {
       const updated = await updateTheaterService(req.params.id, req.body);
+      await publishGeneralMessage(
+        notificationTypes.THEATER_UPDATED,
+        [
+          notificationMessageType.InAppNotification,
+          notificationMessageType.MailNotification,
+        ],
+        {
+          userId: req.user._id,
+          title: "New Theater Updated",
+          message: `Theater "${updated.name}" has been successfully updated.`,
+          email: req.user._id, // optional if available
+          phone: req.user._id, // optional if available
+          meta: { updatedId: updated._id },
+        }
+      );
       res.status(200).json({
         success: true,
         message: "Theater updated successfully !!",
@@ -87,6 +119,21 @@ const {
   const deleteTheaterHandler = async (req, res) => {
     try {
       const deleted = await deleteTheaterService(req.params.id);
+      await publishGeneralMessage(
+        notificationTypes.THEATER_DELETED,
+        [
+          notificationMessageType.InAppNotification,
+          notificationMessageType.MailNotification,
+        ],
+        {
+          userId: req.user._id,
+          title: "Theater Deleted",
+          message: `Theater "${deleted.name}" has been successfully deleted.`,
+          email: req.user._id, // optional if available
+          phone: req.user._id, // optional if available
+          meta: { deletedId: deleted._id },
+        }
+      );
       res.status(200).json({
         success: true,
         message: "Theater deleted successfully !!",

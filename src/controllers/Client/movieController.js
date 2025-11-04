@@ -27,8 +27,8 @@ const postMovieHandler = async (req, res) => {
         userId: req.user._id,
         title: "New Movie Added",
         message: `Movie "${movie.title}" has been successfully added.`,
-        email: "yesabhi@gmail.com", // optional if available
-        phone: "+91 7003207968", // optional if available
+        email: req.user._id, // optional if available
+        phone: req.user._id, // optional if available
         meta: { movieId: movie._id },
       }
     );
@@ -90,6 +90,21 @@ const getMovieByIdHandler = async (req, res) => {
 const updateMovieHandler = async (req, res) => {
   try {
     const updated = await updateMovieService(req.params.id, req.body);
+    await publishGeneralMessage(
+      notificationTypes.MOVIE_UPDATED,
+      [
+        notificationMessageType.InAppNotification,
+        notificationMessageType.MailNotification,
+      ],
+      {
+        userId: req.user._id,
+        title: `${movie.title} Movie Updated`,
+        message: `${movie.title} Movie has been successfully updated.`,
+        email: req.user._id, // optional if available
+        phone: req.user._id, // optional if available
+        meta: { movieId: movie._id },
+      }
+    );
     res.status(200).json({
       success: true,
       message: "Movie updated successfully !!",
@@ -109,6 +124,21 @@ const updateMovieHandler = async (req, res) => {
 const deleteMovieHandler = async (req, res) => {
   try {
     const deleted = await deleteMovieService(req.params.id);
+    await publishGeneralMessage(
+      notificationTypes.MOVIE_DELETED,
+      [
+        notificationMessageType.InAppNotification,
+        notificationMessageType.MailNotification,
+      ],
+      {
+        userId: req.user._id,
+        title: `${movie.title} Movie Deleted`,
+        message: `${movie.title} Movie has been successfully Deleted.`,
+        email: req.user._id, // optional if available
+        phone: req.user._id, // optional if available
+        meta: { movieId: movie._id },
+      }
+    );
     res.status(200).json({
       success: true,
       message: "Movie deleted successfully !!",

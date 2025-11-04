@@ -1,3 +1,8 @@
+const notificationMessageType = require("../../constants/notificationMessageType");
+const notificationTypes = require("../../constants/notificationTypes");
+const {
+  publishOrderMessage,
+} = require("../../Notification/Producer/orderConsumer");
 const { postBookingService } = require("../../services/User/bookingService");
 
 /**
@@ -11,6 +16,24 @@ const postBookingHandler = async (req, res) => {
     const userId = req.user._id;
 
     const result = await postBookingService(userId, body);
+
+    await publishOrderMessage(
+      notificationTypes.BOOKING_CONFIRMED,
+      [
+        notificationMessageType.InAppNotification,
+        notificationMessageType.MailNotification,
+        notificationMessageType.PhoneNotification,
+        notificationMessageType.WhatsAppNotification
+      ],
+      {
+        userId: req.user._id,
+        title: "Your booking confirmed",
+        message: `Booking Id "${result}" has been successfully confirmed.`,
+        email: req.user._id, // optional if available
+        phone: req.user._id, // optional if available
+        meta: { screenId: result },
+      }
+    );
 
     return res.status(201).json({
       success: true,

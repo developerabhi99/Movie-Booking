@@ -13,6 +13,10 @@ const { checkAuthenticatedUser, checkRoleAuthorizationForClient } = require('./s
 
 const app = express();
 const setupSwagger = require("./src/config/swagger");
+const { generalConsumer } = require('./src/Notification/Consumer/generalConsumer');
+const { OrderConsumer } = require('./src/Notification/Consumer/orderConsumer');
+const { PaymentConsumer } = require('./src/Notification/Consumer/paymentConsumer');
+
 
 setupSwagger(app); 
 
@@ -22,15 +26,17 @@ connectDB();
 connectRedis;
 (async () => {
     try {
-      console.log("🚀 Initializing RabbitMQ...");
+      console.log(" Initializing RabbitMQ...");
       await initRabbitMQ();
-  
-      // console.log("🎧 Starting Notification Consumer...");
-      // await startNotificationConsumer();
-  
-      // console.log("✅ RabbitMQ & Notification Consumer ready");
+      console.log("General consumer started listening ...")
+      await generalConsumer();
+      console.log("Order consumer started listening ...")
+      await OrderConsumer();
+      console.log("Order consumer started listening ...")
+      await PaymentConsumer();
+      
     } catch (err) {
-      console.error("❌ Failed to initialize RabbitMQ or start consumer:", err.message);
+      console.error("Failed to initialize RabbitMQ or start consumer:", err.message);
     }
   })();
 

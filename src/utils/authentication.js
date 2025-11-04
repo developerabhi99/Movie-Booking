@@ -7,10 +7,12 @@ const createTokenForUser=(user)=>{
         _id:user._id,
         firstName:user.firstName,
         lastName:user.lastName,
+        email:user.email,
+        phoneNumber:user.contactNumber,
         role:user.role
     }
 
-    const token = JWT.sign(payload,secretKey);
+    const token = JWT.sign(payload,secretKey, { expiresIn: '1h' });
 
     return token;
     
