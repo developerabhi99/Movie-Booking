@@ -1,4 +1,5 @@
 const { initRabbitMQ, NOTIFICATION_EXCHANGE } = require("../../config/rabbitmq");
+const { handleNotification } = require("../../services/Notifications/notificationService");
 
 const QUEUE_NAME = "General_Queue";
 const MAX_RETRIES = 6;
@@ -41,7 +42,8 @@ async function generalConsumer() {
         console.log("Received message:", data);
 
         // Simulate error for testing (remove in production)
-        throw new Error("Simulated failure");
+       // throw new Error("Simulated failure");
+       await handleNotification(data.type,data.messageType,data.message);
 
         // If success
         console.log(" Processed successfully");

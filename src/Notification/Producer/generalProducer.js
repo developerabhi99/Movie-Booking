@@ -35,14 +35,22 @@ async function setupGeneralQueues(channel) {
   console.log("General Queues configured");
 }
 
-async function publishGeneralMessage(message) {
+async function publishGeneralMessage(type,messageType=[],message) {
   try {
     const { channel } = await initRabbitMQ();
     await setupGeneralQueues(channel);
 
-    const payload = Buffer.from(JSON.stringify(message));
+    //const msg = Buffer.from(JSON.stringify(message));
 
-    await channel.publish(NOTIFICATION_EXCHANGE, "General.main", payload, { persistent: true });
+    const payload ={
+      type,
+      messageType,
+      message
+    }
+    const msg = Buffer.from(JSON.stringify(payload));
+
+
+    await channel.publish(NOTIFICATION_EXCHANGE, "General.main", msg, { persistent: true });
     console.log("Message published to General_Queue");
   } catch (err) {
     console.error("Failed to publish message:", err.message);

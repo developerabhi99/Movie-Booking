@@ -1,5 +1,6 @@
 const notificationMessageType = require("../../constants/notificationMessageType");
 const notificationTypes = require("../../constants/notificationTypes");
+const { publishGeneralMessage } = require("../../Notification/Producer/generalProducer");
 const {
   postMovieService,
   getMoviesService,
@@ -7,9 +8,7 @@ const {
   updateMovieService,
   deleteMovieService,
 } = require("../../services/Client/movie");
-const {
-  publishNotificationEvent,
-} = require("../../services/Notifications/notificationPublisher");
+
 
 const postMovieHandler = async (req, res) => {
   try {
@@ -18,13 +17,11 @@ const postMovieHandler = async (req, res) => {
       addedBy: req.user._id,
     });
 
-    await publishNotificationEvent(
+    await publishGeneralMessage(
       notificationTypes.MOVIE_ADDED,
       [
         notificationMessageType.InAppNotification,
         notificationMessageType.MailNotification,
-        notificationMessageType.PhoneNotification,
-        notificationMessageType.WhatsAppNotification,
       ],
       {
         userId: req.user._id,

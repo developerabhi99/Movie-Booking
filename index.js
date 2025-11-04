@@ -7,7 +7,7 @@ const clientRoute = require("./src/routes/Client/client");
 const paymentRoute = require("./src/routes/User/booking"); 
 
 const { initRabbitMQ } = require("./src/config/rabbitmq");
-const { startNotificationConsumer } = require("./src/services/Notifications/notificationConsumer");
+// const { startNotificationConsumer } = require("./src/services/Notifications/notificationConsumer");
 
 const { checkAuthenticatedUser, checkRoleAuthorizationForClient } = require('./src/middlewares/authentication');
 
