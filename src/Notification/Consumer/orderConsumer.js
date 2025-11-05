@@ -4,102 +4,85 @@ const { handleNotification } = require("../../services/Notifications/notificatio
 const QUEUE_NAME = "Order_Queue";
 const MAX_RETRIES = 6;
 
-// Define exponential retry delays (in milliseconds)
-const RETRY_DELAYS = [5000, 10000, 20000, 40000, 80000, 160000]; // 5s → 160s
+// Retry timings
+const RETRY_DELAYS = [5000, 10000, 20000, 40000, 80000, 160000];
 
 async function OrderConsumer() {
   try {
     const { channel } = await initRabbitMQ();
     console.log("Listening to:", QUEUE_NAME);
 
-    // Dynamically create retry queues if not already declared
-    for (let i = 0; i < MAX_RETRIES; i++) {
-      const queueName = `Order_Retry_Queue_${i + 1}`;
-      const ttl = RETRY_DELAYS[i];
-
-      await channel.assertQueue(queueName, {
-        durable: true,
-        arguments: {
-          "x-message-ttl": ttl,
-          "x-dead-letter-exchange": NOTIFICATION_EXCHANGE,
-          "x-dead-letter-routing-key": "Order.main", // Send back to main queue after TTL
-        },
-      });
-
-      await channel.bindQueue(queueName, NOTIFICATION_EXCHANGE, `Order.retry.${i + 1}`);
-     // console.log(`Configured ${queueName} with TTL ${ttl / 1000}s`);
-    }
-
-    await channel.assertQueue("Order_DLQ", { durable: true });
-    await channel.bindQueue("Order_DLQ", NOTIFICATION_EXCHANGE, "Order.dlq");
-
+    // MAIN QUEUE (first receiver)
     await channel.assertQueue(QUEUE_NAME, {
       durable: true,
       arguments: {
         "x-dead-letter-exchange": NOTIFICATION_EXCHANGE,
-        "x-dead-letter-routing-key": "Order.retry",
-      },
+        "x-dead-letter-routing-key": "Order.retry.1" // First retry step
+      }
     });
+
     await channel.bindQueue(QUEUE_NAME, NOTIFICATION_EXCHANGE, "Order.main");
 
-    // Consume messages from main queue
+    // RETRY QUEUES
+    for (let i = 0; i < MAX_RETRIES; i++) {
+      const retryQueue = `Order_Retry_Queue_${i + 1}`;
+      const ttl = RETRY_DELAYS[i];
+      const nextRetryRoutingKey = (i + 1 < MAX_RETRIES)
+        ? `Order.retry.${i + 2}`
+        : "Order.dlq"; // Last retry sends to DLQ
+
+      await channel.assertQueue(retryQueue, {
+        durable: true,
+        arguments: {
+          "x-message-ttl": ttl,
+          "x-dead-letter-exchange": NOTIFICATION_EXCHANGE,
+          "x-dead-letter-routing-key": nextRetryRoutingKey
+        }
+      });
+
+      // Bind retry queue to receive retry messages
+      await channel.bindQueue(retryQueue, NOTIFICATION_EXCHANGE, `Order.retry.${i + 1}`);
+    }
+
+    // DLQ
+    await channel.assertQueue("Order_DLQ", { durable: true });
+    await channel.bindQueue("Order_DLQ", NOTIFICATION_EXCHANGE, "Order.dlq");
+
+    // CONSUMER
     await channel.consume(QUEUE_NAME, async (msg) => {
       if (!msg) return;
 
-      const data = JSON.parse(msg.content.toString());
-      const headers = msg.properties.headers || {};
-      const retryCount = headers["x-retry-count"] || 0;
+      const body = JSON.parse(msg.content.toString());
+      const retryCount = msg.properties.headers?.["x-retry-count"] || 0;
 
       try {
-        console.log("Received message:", data);
+        await handleNotification(body.type, body.messageType, body.message);
 
-        // Simulate error for testing (remove in production)
-       await handleNotification(data.type,data.messageType,data.message);
-
-        // If success
-        console.log(" Processed successfully");
+        console.log(`✅ Processed successfully`);
         channel.ack(msg);
 
-      } catch (error) {
-        console.error(` Failed (attempt ${retryCount + 1}):`, error.message);
+      } catch (err) {
+        console.error(`❌ Failed (Attempt ${retryCount + 1}):`, err.message);
 
-        if (retryCount < MAX_RETRIES) {
-          const nextRetryQueue = `Order_Retry_Queue_${retryCount + 1}`;
-          const nextRoutingKey = `Order.retry.${retryCount + 1}`;
+        // Send to next retry queue OR DLQ
+        const nextRetryRoutingKey = (retryCount < MAX_RETRIES)
+          ? `Order.retry.${retryCount + 1}`
+          : "Order.dlq";
 
-          channel.publish(
-            NOTIFICATION_EXCHANGE,
-            nextRoutingKey,
-            Buffer.from(JSON.stringify(data)),
-            {
-              persistent: true,
-              headers: { "x-retry-count": retryCount + 1 },
-            }
-          );
+        channel.publish(
+          NOTIFICATION_EXCHANGE,
+          nextRetryRoutingKey,
+          Buffer.from(JSON.stringify(body)),
+          { persistent: true, headers: { "x-retry-count": retryCount + 1 } }
+        );
 
-          console.log(
-            `Message sent to ${nextRetryQueue} (will retry in ${
-              RETRY_DELAYS[retryCount] / 1000
-            }s)`
-          );
-        } else {
-          // Move to DLQ after max retries
-          channel.publish(
-            NOTIFICATION_EXCHANGE,
-            "Order.dlq",
-            Buffer.from(JSON.stringify(data)),
-            { persistent: true }
-          );
-          console.log(" Message sent to DLQ after max retries");
-        }
-
-        // Always ack the original message
+        console.log(`↪️ Routed to: ${nextRetryRoutingKey}`);
         channel.ack(msg);
       }
     });
 
   } catch (err) {
-    console.error("Consumer initialization error:", err.message);
+    console.error("Consumer Initialization Error:", err.message);
   }
 }
 

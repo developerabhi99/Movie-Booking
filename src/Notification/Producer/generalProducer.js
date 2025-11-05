@@ -23,13 +23,13 @@ async function setupGeneralQueues(channel) {
     durable: true,
     arguments: {
       "x-dead-letter-exchange": NOTIFICATION_EXCHANGE,
-      "x-dead-letter-routing-key": "General.retry",
+      "x-dead-letter-routing-key": "General.retry.1",
     },
   });
 
  
   await channel.bindQueue(QUEUE_NAME, NOTIFICATION_EXCHANGE, "General.main");
-  await channel.bindQueue(RETRY_QUEUE, NOTIFICATION_EXCHANGE, "General.retry");
+  await channel.bindQueue(RETRY_QUEUE, NOTIFICATION_EXCHANGE, "General.retry.1");
   await channel.bindQueue(DLQ_QUEUE, NOTIFICATION_EXCHANGE, "General.dlq");
 
   console.log("General Queues configured");

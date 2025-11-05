@@ -23,7 +23,7 @@ async function setupOrderQueues(channel) {
     durable: true,
     arguments: {
       "x-dead-letter-exchange": NOTIFICATION_EXCHANGE,
-      "x-dead-letter-routing-key": "Order.retry",
+      "x-dead-letter-routing-key": "Order.retry.1",
     },
   });
 

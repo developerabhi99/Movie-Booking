@@ -23,7 +23,7 @@ async function setupPaymentQueues(channel) {
     durable: true,
     arguments: {
       "x-dead-letter-exchange": NOTIFICATION_EXCHANGE,
-      "x-dead-letter-routing-key": "Payment.retry",
+      "x-dead-letter-routing-key": "Payment.retry.1",
     },
   });
 
