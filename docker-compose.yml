@@ -40,36 +40,36 @@ services:
         networks:
             - rabbitmq_network
 
-    # app:
-    #     build:
-    #         context: .
-    #         dockerfile: Dockerfile
-    #     container_name: movie-booking-app
-    #     ports:
-    #         - "3002:3000"
-    #     environment:
-    #         PORT: "3000"
-    #         MONGO_URI: "mongodb://admin:password@mongodb:27017/mba?authSource=admin"
-    #         REDIS_URL: "redis://:123456@redis:6379"
-    #         RABBITMQ_URL: "amqp://admin:admin123@rabbitmq:5672/"
-    #         MAILTRAP_HOST: "sandbox.smtp.mailtrap.io"
-    #         MAILTRAP_PORT: "2525"
-    #         MAILTRAP_USER: "f1fa82691df66c"
-    #         MAILTRAP_PASS: "8d0d828030ab14"
-    #         EMAIL_USER: "test@gmail.com"
-    #         TWILIO_ACCOUNT_SID: "AC532e47155518ccdb147d203b552c50c7"
-    #         TWILIO_AUTH_TOKEN: "9fbbdef3b96f22d7a4943fa5975dd4fd"
-    #         TWILIO_MESSAGING_SERVICE_SID: "MG13fea770ebc0ca5e1f31cddfe3861924"
-    #         TWILIO_WHATSAPP_FROM: "whatsapp:+14155238886"
-    #         TWILIO_WHATSAPP_CONTENT_SID: "HX350d429d32e64a552466cafecbe95f3c"
-    #     depends_on:
-    #         - mongodb
-    #         - redis
-    #         - rabbitmq
-    #     networks:
-    #         - mongo_network
-    #         - redis_network
-    #         - rabbitmq_network
+    app:
+        build:
+            context: .
+            dockerfile: Dockerfile
+        container_name: movie-booking-app
+        ports:
+            - "3002:3000"
+        environment:
+            PORT: "3000"
+            MONGO_URI: "mongodb://admin:password@mongodb:27017/mba?authSource=admin"
+            REDIS_URL: "redis://:123456@redis:6379"
+            RABBITMQ_URL: "amqp://admin:admin123@rabbitmq:5672/"
+            MAILTRAP_HOST: "sandbox.smtp.mailtrap.io"
+            MAILTRAP_PORT: "2525"
+            MAILTRAP_USER: "f1fa82691df66c"
+            MAILTRAP_PASS: "8d0d828030ab14"
+            EMAIL_USER: "test@gmail.com"
+            TWILIO_ACCOUNT_SID: "AC532e47155518ccdb147d203b552c50c7"
+            TWILIO_AUTH_TOKEN: "9fbbdef3b96f22d7a4943fa5975dd4fd"
+            TWILIO_MESSAGING_SERVICE_SID: "MG13fea770ebc0ca5e1f31cddfe3861924"
+            TWILIO_WHATSAPP_FROM: "whatsapp:+14155238886"
+            TWILIO_WHATSAPP_CONTENT_SID: "HX350d429d32e64a552466cafecbe95f3c"
+        depends_on:
+            - mongodb
+            - redis
+            - rabbitmq
+        networks:
+            - mongo_network
+            - redis_network
+            - rabbitmq_network
 
 volumes:
     mongodb_data:
